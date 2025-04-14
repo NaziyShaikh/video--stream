@@ -7,20 +7,7 @@ const path = require('path');
 
 app.use(cors());
 
-// Serve React build files
-app.use(express.static(path.join(__dirname, '../frontend-react/build')));
-
-// Root route - serves the main page
-app.get('/', (req, res) => {
-    try {
-        res.sendFile(path.join(__dirname, '../frontend-react/build', 'index.html'));
-    } catch (error) {
-        console.error('Error serving index.html:', error);
-        res.status(404).send('Not Found');
-    }
-});
-
-// added the videolist to see the videos to streem videos in page 
+// Get list of available videos
 app.get('/api/videos', (req, res) => {
     try {
         const videosDir = path.join(__dirname, 'videos');
@@ -51,7 +38,7 @@ app.get('/api/videos', (req, res) => {
     }
 });
 
-
+// Video streaming endpoint
 app.get('/video/:filename', (req, res) => {
     try {
         const { filename } = req.params;
@@ -100,17 +87,7 @@ app.get('/video/:filename', (req, res) => {
     }
 });
 
-// Handle all other routes
-app.get('*', (req, res) => {
-    try {
-        res.sendFile(path.join(__dirname, '../frontend-react/build', 'index.html'));
-    } catch (error) {
-        console.error('Error serving other routes:', error);
-        res.status(404).send('Not Found');
-    }
-});
-
-// Error handling middleware added
+// Error handling middleware
 app.use((err, req, res, next) => {
     console.error('Error:', err);
     res.status(500).send('Something went wrong!');
