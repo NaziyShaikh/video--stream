@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import './VideoPlayer.css';
 
+const API_URL = 'https://video-stream-hocw.onrender.com';
+
 const VideoPlayer = () => {
     const [videoFile, setVideoFile] = useState('');
     const [videoSrc, setVideoSrc] = useState('');
     const [videos, setVideos] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const fetchVideos = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/videos');
+            setLoading(true);
+            const response = await fetch(`${API_URL}/api/videos`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch videos');
+            }
             const data = await response.json();
             setVideos(data);
         } catch (error) {
             console.error('Error fetching videos:', error);
+            alert('Failed to fetch videos. Please try again later.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -21,12 +31,29 @@ const VideoPlayer = () => {
     }, []);
 
     const handleRefresh = () => {
-        window.location.reload();
+        fetchVideos();
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setVideoSrc(`http://localhost:3000/video/${videoFile}`);
+        if (!videoFile) {
+            alert('Please select a video file');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const response = await fetch(`${API_URL}/video/${videoFile}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch video');
+            }
+            setVideoSrc(`${API_URL}/video/${videoFile}`);
+        } catch (error) {
+            console.error('Error streaming video:', error);
+            alert('Failed to stream video. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -40,13 +67,17 @@ const VideoPlayer = () => {
                 
                 <div className="video-list">
                     <h2>Available Videos</h2>
-                    <ul>
-                        {videos.map((video) => (
-                            <li key={video.name} className="video-item">
-                                {video.name} ({Math.round(video.size / 1024 / 1024)} MB)
-                            </li>
-                        ))}
-                    </ul>
+                    {loading ? (
+                        <p>Loading videos...</p>
+                    ) : (
+                        <ul>
+                            {videos.map((video) => (
+                                <li key={video.name} className="video-item">
+                                    {video.name} ({Math.round(video.size / 1024 / 1024)} MB)
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
 
                 <form onSubmit={handleSubmit} className="input-form">
@@ -56,8 +87,10 @@ const VideoPlayer = () => {
                         onChange={(e) => setVideoFile(e.target.value)}
                         placeholder="Enter video filename"
                     />
-                    <button type="submit" className="stream-btn">Stream Video</button>
-                    <>refresh the page to stream the available video</>
+                    <button type="submit" className="stream-btn" disabled={loading}>
+                        {loading ? 'Loading...' : 'Stream Video'}
+                    </button>
+                    <p className="refresh-note">Refresh the page to see available videos</p>
                 </form>
             </div>
 
