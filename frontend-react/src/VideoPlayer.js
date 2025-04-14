@@ -2,29 +2,18 @@ import React, { useState, useEffect } from 'react';
 import './VideoPlayer.css';
 
 const API_URL = 'https://video-stream-hocw.onrender.com';
-
 const VideoPlayer = () => {
     const [videoFile, setVideoFile] = useState('');
     const [videoSrc, setVideoSrc] = useState('');
     const [videos, setVideos] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
 
     const fetchVideos = async () => {
         try {
-            setLoading(true);
-            setError('');
             const response = await fetch(`${API_URL}/api/videos`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch videos');
-            }
             const data = await response.json();
             setVideos(data);
         } catch (error) {
             console.error('Error fetching videos:', error);
-            setError('Failed to fetch videos. Please try again later.');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -33,32 +22,12 @@ const VideoPlayer = () => {
     }, []);
 
     const handleRefresh = () => {
-        setVideoSrc(''); // Clear current video
-        fetchVideos();
+        window.location.reload();
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        if (!videoFile) {
-            setError('Please select a video file');
-            return;
-        }
-
-        try {
-            setLoading(true);
-            setError('');
-            // First check if the video exists
-            const response = await fetch(`${API_URL}/video/${videoFile}`);
-            if (!response.ok) {
-                throw new Error('Video not found');
-            }
-            setVideoSrc(`${API_URL}/video/${videoFile}`);
-        } catch (error) {
-            console.error('Error streaming video:', error);
-            setError('Failed to stream video. Please try again.');
-        } finally {
-            setLoading(false);
-        }
+        setVideoSrc(`${API_URL}/video/${videoFile}`);
     };
 
     return (
@@ -66,23 +35,19 @@ const VideoPlayer = () => {
             <div className="sidebar">
                 <div className="controls">
                     <button onClick={handleRefresh} className="refresh-btn">
-                        Refresh Video List
+                        Refresh Page
                     </button>
                 </div>
                 
                 <div className="video-list">
                     <h2>Available Videos</h2>
-                    {loading ? (
-                        <p>Loading videos...</p>
-                    ) : (
-                        <ul>
-                            {videos.map((video) => (
-                                <li key={video.name} className="video-item">
-                                    {video.name} ({Math.round(video.size / 1024 / 1024)} MB)
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                    <ul>
+                        {videos.map((video) => (
+                            <li key={video.name} className="video-item">
+                                {video.name} ({Math.round(video.size / 1024 / 1024)} MB)
+                            </li>
+                        ))}
+                    </ul>
                 </div>
 
                 <form onSubmit={handleSubmit} className="input-form">
@@ -92,14 +57,8 @@ const VideoPlayer = () => {
                         onChange={(e) => setVideoFile(e.target.value)}
                         placeholder="Enter video filename"
                     />
-                    <button 
-                        type="submit" 
-                        className="stream-btn" 
-                        disabled={loading}
-                    >
-                        {loading ? 'Loading...' : 'Stream Video'}
-                    </button>
-                    {error && <p className="error-message">{error}</p>}
+                    <button type="submit" className="stream-btn">Stream Video</button>
+                    <>refresh the page to stream the 2nd video</>
                 </form>
             </div>
 
