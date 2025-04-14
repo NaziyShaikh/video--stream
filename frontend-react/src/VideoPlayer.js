@@ -66,7 +66,10 @@ const VideoPlayer = () => {
                         placeholder="Enter video filename"
                     />
                     <button type="submit" className="stream-btn">Stream Video</button>
-                    <p className="refresh-note">Click on a video name to fill the input</p>
+                    <p className="refresh-note">Click on a video name to fill the input and 
+                        refresh page to play diffrent video and all files to do same refresh 
+                        and paly another video
+                    </p>
                 </form>
             </div>
 
