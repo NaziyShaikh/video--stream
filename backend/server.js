@@ -7,7 +7,7 @@ const path = require('path');
 
 app.use(cors());
 
-// Get list of available videos
+
 app.get('/api/videos', (req, res) => {
     try {
         const videosDir = path.join(__dirname, 'videos');
@@ -38,7 +38,7 @@ app.get('/api/videos', (req, res) => {
     }
 });
 
-// Video streaming endpoint
+
 app.get('/video/:filename', (req, res) => {
     try {
         const { filename } = req.params;
@@ -85,6 +85,16 @@ app.get('/video/:filename', (req, res) => {
         console.error('Error streaming video:', error);
         res.status(500).json({ error: 'Failed to stream video' });
     }
+});
+// Added becuse i geting Cannot GET / meassge in deplyment link of backend
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Welcome to the Video Streaming API',
+        endpoints: {
+            'GET /api/videos': 'List available videos',
+            'GET /video/:filename': 'Stream a specific video'
+        }
+    });
 });
 
 // Error handling middleware
