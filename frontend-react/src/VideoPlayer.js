@@ -8,10 +8,12 @@ const VideoPlayer = () => {
     const [videoSrc, setVideoSrc] = useState('');
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const fetchVideos = async () => {
         try {
             setLoading(true);
+            setError('');
             const response = await fetch(`${API_URL}/api/videos`);
             if (!response.ok) {
                 throw new Error('Failed to fetch videos');
@@ -20,7 +22,7 @@ const VideoPlayer = () => {
             setVideos(data);
         } catch (error) {
             console.error('Error fetching videos:', error);
-            alert('Failed to fetch videos. Please try again later.');
+            setError('Failed to fetch videos. Please try again later.');
         } finally {
             setLoading(false);
         }
@@ -31,26 +33,29 @@ const VideoPlayer = () => {
     }, []);
 
     const handleRefresh = () => {
+        setVideoSrc(''); // Clear current video
         fetchVideos();
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!videoFile) {
-            alert('Please select a video file');
+            setError('Please select a video file');
             return;
         }
 
         try {
             setLoading(true);
+            setError('');
+            // First check if the video exists
             const response = await fetch(`${API_URL}/video/${videoFile}`);
             if (!response.ok) {
-                throw new Error('Failed to fetch video');
+                throw new Error('Video not found');
             }
             setVideoSrc(`${API_URL}/video/${videoFile}`);
         } catch (error) {
             console.error('Error streaming video:', error);
-            alert('Failed to stream video. Please try again.');
+            setError('Failed to stream video. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -61,7 +66,7 @@ const VideoPlayer = () => {
             <div className="sidebar">
                 <div className="controls">
                     <button onClick={handleRefresh} className="refresh-btn">
-                        Refresh Page
+                        Refresh Video List
                     </button>
                 </div>
                 
@@ -87,10 +92,14 @@ const VideoPlayer = () => {
                         onChange={(e) => setVideoFile(e.target.value)}
                         placeholder="Enter video filename"
                     />
-                    <button type="submit" className="stream-btn" disabled={loading}>
+                    <button 
+                        type="submit" 
+                        className="stream-btn" 
+                        disabled={loading}
+                    >
                         {loading ? 'Loading...' : 'Stream Video'}
                     </button>
-                    <p className="refresh-note">Refresh the page to see available videos</p>
+                    {error && <p className="error-message">{error}</p>}
                 </form>
             </div>
 
