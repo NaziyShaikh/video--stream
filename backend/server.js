@@ -30,7 +30,7 @@ app.get('/api/videos', (req, res) => {
         res.json(videoFiles);
     });
 });
-
+// here added video list understand the files that have to be stream which file they can chose stream them 
 app.get('/video/:filename', (req, res) => {
     const { filename } = req.params;
     const videoPath = path.join(__dirname, 'videos', filename);
@@ -72,6 +72,12 @@ app.get('/video/:filename', (req, res) => {
         const stream = fs.createReadStream(videoPath);
         stream.pipe(res);
     }
+});
+
+// added  React build files for all other 
+//routes when depolying it shows connet/get there so added the root route understanding backend
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend-react/build', 'index.html'));
 });
 
 app.listen(PORT, () => {
