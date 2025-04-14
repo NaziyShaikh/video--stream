@@ -30,6 +30,10 @@ const VideoPlayer = () => {
         setVideoSrc(`${API_URL}/video/${videoFile}`);
     };
 
+    const handleVideoClick = (videoName) => {
+        setVideoFile(videoName);
+    };
+
     return (
         <div className="app-container">
             <div className="sidebar">
@@ -43,7 +47,11 @@ const VideoPlayer = () => {
                     <h2>Available Videos</h2>
                     <ul>
                         {videos.map((video) => (
-                            <li key={video.name} className="video-item">
+                            <li 
+                                key={video.name} 
+                                className="video-item clickable"
+                                onClick={() => handleVideoClick(video.name)}
+                            >
                                 {video.name} ({Math.round(video.size / 1024 / 1024)} MB)
                             </li>
                         ))}
@@ -58,7 +66,7 @@ const VideoPlayer = () => {
                         placeholder="Enter video filename"
                     />
                     <button type="submit" className="stream-btn">Stream Video</button>
-                    <>refresh the page to stream the 2nd video</>
+                    <p className="refresh-note">Click on a video name to fill the input</p>
                 </form>
             </div>
 
